@@ -5,6 +5,7 @@ const int DRY = 650;
 const int WET = 428;
 const int MOISTURE_SENSOR_PIN = A7;
 const int PUMP_PINS[] = {2, 3, 4, 5};
+bool REACHED_MAX = true;
 
 void pump_control(bool power_on) {
   int setting = LOW;
@@ -25,15 +26,20 @@ void setup() {
 }
 
 void loop() {
+  pump_control(false);
+  delay(60000);
   int moisture_val = analogRead(MOISTURE_SENSOR_PIN);
   int moisture_percent = map(moisture_val, WET, DRY, 100, 0);
   Serial.println(moisture_val);
   Serial.print(moisture_percent);
   Serial.println("%");
   if (moisture_percent <= WATER_ME) {
-    pump_control(true);
+    REACHED_MAX = false;
   } else if (moisture_percent >= DONT_WATER_ME) {
-    pump_control(false);
+    REACHED_MAX = true;
+  }
+  if (!REACHED_MAX) {
+    pump_control(true);
   }
   delay(500);
 }
